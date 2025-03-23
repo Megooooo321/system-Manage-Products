@@ -13,6 +13,56 @@ document.addEventListener("DOMContentLoaded", () => {
     const deleteAllSection = document.getElementById("deleteAll");
     const searchInput = document.getElementById("search");
 
+
+    // new edit in code 
+    document.addEventListener("DOMContentLoaded", () => {
+    const price = document.getElementById("price");
+    const taxes = document.getElementById("taxes");
+    const ads = document.getElementById("ads");
+    const discount = document.getElementById("discount");
+    const total = document.getElementById("total");
+    const searchInput = document.getElementById("search");
+
+    // حساب الإجمالي
+    function getTotal() {
+        const priceValue = parseFloat(price.value) || 0;
+        const taxesValue = parseFloat(taxes.value) || 0;
+        const adsValue = parseFloat(ads.value) || 0;
+        const discountValue = parseFloat(discount.value) || 0;
+        const totalValue = priceValue + taxesValue + adsValue - discountValue;
+        total.textContent = `Total: ${totalValue > 0 ? totalValue.toFixed(2) : 0}`;
+    }
+
+    // إضافة الأحداث لحساب الإجمالي عند الكتابة في أي من الحقول
+    [price, taxes, ads, discount].forEach((input) =>
+        input.addEventListener("input", getTotal)
+    );
+
+    // البحث عن المنتجات
+    function searchData(query) {
+        query = query.toLowerCase();
+        const filteredData = dataProduct.filter((product) =>
+            product[searchMode].toLowerCase().includes(query)
+        );
+        renderTable(filteredData);
+    }
+
+    // تغيير وضع البحث
+    function getSearchMood(mode) {
+        searchMode = mode;
+        searchInput.placeholder = `Search by ${mode}`;
+        searchInput.value = "";
+        searchInput.focus();
+    }
+
+    document.getElementById("searchTitle").addEventListener("click", () => getSearchMood("title"));
+    document.getElementById("searchCategory").addEventListener("click", () => getSearchMood("category"));
+    searchInput.addEventListener("input", () => searchData(searchInput.value));
+});
+
+    // end edit in code 
+
+    
     // State Variables
     let mood = "create"; // Current mode: 'create' or 'update'
     let tmpIndex = null; // Temporary index for editing
