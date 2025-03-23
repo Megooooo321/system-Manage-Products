@@ -1,6 +1,4 @@
-<!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,16 +24,16 @@
 
                 <div class="price-section">
                     <label for="price">Price</label>
-                    <input type="number" id="price" placeholder="Enter price" onkeyup="getTotal()" required>
+                    <input type="number" id="price" placeholder="Enter price" required>
 
                     <label for="taxes">Taxes</label>
-                    <input type="number" id="taxes" placeholder="Enter taxes" onkeyup="getTotal()">
+                    <input type="number" id="taxes" placeholder="Enter taxes">
 
                     <label for="ads">Ads</label>
-                    <input type="number" id="ads" placeholder="Enter ads cost" onkeyup="getTotal()">
+                    <input type="number" id="ads" placeholder="Enter ads cost">
 
                     <label for="discount">Discount</label>
-                    <input type="number" id="discount" placeholder="Enter discount" onkeyup="getTotal()">
+                    <input type="number" id="discount" placeholder="Enter discount">
 
                     <div id="total" class="total-display">Total: 0</div>
                 </div>
@@ -54,16 +52,16 @@
         <section class="outputs">
             <div class="search-section">
                 <label for="search">Search Products</label>
-                <input type="text" id="search" placeholder="Search..." onkeyup="searchData(this.value)">
+                <input type="text" id="search" placeholder="Search...">
 
                 <div class="search-buttons">
-                    <button id="searchTitle" onclick="getSearchMood('title')" class="btn-secondary">Search by Title</button>
-                    <button id="searchCategory" onclick="getSearchMood('category')" class="btn-secondary">Search by Category</button>
+                    <button id="searchTitle" class="btn-secondary">Search by Title</button>
+                    <button id="searchCategory" class="btn-secondary">Search by Category</button>
                 </div>
             </div>
         </section>
-        <div id="deleteAll" class="delete-all"></div>
-
+        
+        <div id="deleteAllSection" class="delete-all"></div>
 
         <!-- Table Section -->
         <table>
@@ -79,7 +77,6 @@
                     <th>Category</th>
                     <th>Update</th>
                     <th>Delete</th>
-
                 </tr>
             </thead>
             <tbody id="productTable">
@@ -88,10 +85,9 @@
         </table>
 
         <!-- Delete All Section -->
-        <section id="deleteAll" class="delete-all hidden">
-            <button class="btn-danger" onclick="deleteAll()">Delete All Products</button>
+        <section id="deleteAllSection" class="delete-all hidden">
+            <button class="btn-danger" onclick="deleteAllProducts()">Delete All Products</button>
         </section>
     </main>
 </body>
-
 </html>
