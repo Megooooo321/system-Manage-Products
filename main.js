@@ -476,7 +476,7 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     // Initial render
-document.addEventListener("DOMContentLoaded", () => {
-    renderTable();
-});
+
+        renderTable();
+
 });
