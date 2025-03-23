@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // تعريف العناصر
+    // Elements
     const title = document.getElementById("title");
     const price = document.getElementById("price");
     const taxes = document.getElementById("taxes");
@@ -13,24 +13,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const deleteAllSection = document.getElementById("deleteAll");
     const searchInput = document.getElementById("search");
 
-    // بيانات المنتجات
-    let dataProduct = JSON.parse(localStorage.getItem("product")) || [];
-    let searchMode = "title";
-    let mood = "create";
-    let tmpIndex = null;
+    // State Variables
+    let mood = "create"; // Current mode: 'create' or 'update'
+    let tmpIndex = null; // Temporary index for editing
+    let dataProduct = JSON.parse(localStorage.getItem("product")) || []; // Load existing products from localStorage
+    let searchMode = "title"; // Default search mode
 
-    /** حساب الإجمالي */
-    function calculateTotal() {
-        const priceValue = parseFloat(price.value) || 0;
-        const taxesValue = parseFloat(taxes.value) || 0;
-        const adsValue = parseFloat(ads.value) || 0;
-        const discountValue = parseFloat(discount.value) || 0;
-        const totalValue = priceValue + taxesValue + adsValue - discountValue;
-
-        total.textContent = totalValue > 0 ? totalValue.toFixed(2) : "0";
-    }
-
-    /** عرض البيانات في الجدول */
+    /** Render the product data in the table */
+    /** Render the product data in the table */
     function renderTable(data = dataProduct) {
         tbody.innerHTML = data
             .map(
@@ -54,13 +44,14 @@ document.addEventListener("DOMContentLoaded", () => {
             )
             .join("");
 
+        // Update the "Delete All" button with the number of products
         deleteAllSection.innerHTML =
-            dataProduct.length > 0
-                ? `<button class="btn-danger" onclick="deleteAllProducts()">Delete All (${dataProduct.length})</button>`
-                : "";
+            dataProduct.length > 0 ?
+            `<button class="btn-danger" onclick="deleteAllProducts()">Delete All (${dataProduct.length})</button>` :
+            "";
     }
 
-    /** حذف جميع المنتجات */
+    /** Delete all products */
     window.deleteAllProducts = () => {
         if (confirm("Are you sure you want to delete all products?")) {
             dataProduct = [];
@@ -69,34 +60,35 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    /** حذف منتج معين */
-    window.deleteProduct = (index) => {
-        dataProduct.splice(index, 1);
-        localStorage.setItem("product", JSON.stringify(dataProduct));
-        renderTable();
-    };
 
-    /** تعديل منتج */
-    window.editProduct = (index) => {
-        const product = dataProduct[index];
-        title.value = product.title;
-        price.value = product.price;
-        taxes.value = product.taxes;
-        ads.value = product.ads;
-        discount.value = product.discount;
-        count.value = product.count;
-        category.value = product.category;
+    /** Calculate and display the total price */
+    function calculateTotal() {
+        const priceValue = parseFloat(price.value) || 0;
+        const taxesValue = parseFloat(taxes.value) || 0;
+        const adsValue = parseFloat(ads.value) || 0;
+        const discountValue = parseFloat(discount.value) || 0;
+        const totalValue = priceValue + taxesValue + adsValue - discountValue;
 
+        total.textContent = `Total: ${totalValue > 0 ? totalValue.toFixed(2) : 0}`;
+    }
+
+    /** Clear all input fields */
+    function clearForm() {
+        title.value = "";
+        price.value = "";
+        taxes.value = "";
+        ads.value = "";
+        discount.value = "";
+        count.value = "";
+        category.value = "";
         calculateTotal();
-        mood = "update";
-        tmpIndex = index;
-        submit.textContent = "Update Product";
-    };
+        mood = "create";
+        submit.textContent = "Create Product";
+        tmpIndex = null;
+    }
 
-    /** إضافة أو تحديث منتج */
-    function handleSubmit(event) {
-        event.preventDefault();
-
+    /** Add or update a product */
+    function handleSubmit() {
         if (!title.value.trim() || !price.value.trim() || !category.value.trim()) {
             alert("Please fill in all required fields: Title, Price, and Category.");
             return;
@@ -124,8 +116,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         } else if (mood === "update") {
             dataProduct[tmpIndex] = product;
-            mood = "create";
-            submit.textContent = "Create Product";
         }
 
         localStorage.setItem("product", JSON.stringify(dataProduct));
@@ -133,7 +123,49 @@ document.addEventListener("DOMContentLoaded", () => {
         clearForm();
     }
 
-    /** مسح الحقول */
+    /** Edit an existing product */
+    /** Edit an existing product */
+    window.editProduct = (index) => {
+        const product = dataProduct[index];
+
+        // Highlight the row being updated
+        const rows = document.querySelectorAll("table tbody tr");
+        rows.forEach((row, idx) => {
+            if (idx === index) {
+                row.classList.add("updating");
+            } else {
+                row.classList.remove("updating");
+            }
+        });
+
+        // Populate the form with the product data
+        title.value = product.title;
+        price.value = product.price;
+        taxes.value = product.taxes;
+        ads.value = product.ads;
+        discount.value = product.discount;
+        count.value = product.count;
+        category.value = product.category;
+
+        // Calculate the total
+        calculateTotal();
+
+        // Add a visual indicator to the form
+        document.querySelector(".inputs").classList.add("editing");
+
+        // Change the mode to update
+        mood = "update";
+        tmpIndex = index;
+        submit.textContent = "Update Product";
+
+        // Scroll smoothly to the form
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+        });
+    };
+
+    /** Clear the form and reset states */
     function clearForm() {
         title.value = "";
         price.value = "";
@@ -143,19 +175,38 @@ document.addEventListener("DOMContentLoaded", () => {
         count.value = "";
         category.value = "";
         calculateTotal();
+
+        // Reset the form visuals
+        document.querySelector(".inputs").classList.remove("editing");
+
+        // Reset the mode
+        mood = "create";
         submit.textContent = "Create Product";
+        tmpIndex = null;
+
+        // Remove row highlight
+        const rows = document.querySelectorAll("table tbody tr");
+        rows.forEach((row) => row.classList.remove("updating"));
     }
 
-    /** البحث */
-    function searchData(query) {
-        query = query.toLowerCase();
-        const filteredData = dataProduct.filter((product) =>
-            product[searchMode].toLowerCase().includes(query)
-        );
-        renderTable(filteredData);
-    }
 
-    /** تغيير وضع البحث */
+    /** Delete a single product */
+    window.deleteProduct = (index) => {
+        dataProduct.splice(index, 1);
+        localStorage.setItem("product", JSON.stringify(dataProduct));
+        renderTable();
+    };
+
+    /** Delete all products */
+    window.deleteAllProducts = () => {
+        if (confirm("Are you sure you want to delete all products?")) {
+            dataProduct = [];
+            localStorage.removeItem("product");
+            renderTable();
+        }
+    };
+
+    /** Set the search mode */
     function setSearchMode(mode) {
         searchMode = mode;
         searchInput.placeholder = `Search by ${mode}`;
@@ -163,17 +214,68 @@ document.addEventListener("DOMContentLoaded", () => {
         searchInput.focus();
     }
 
-    // إضافة الأحداث
-    submit.addEventListener("click", handleSubmit);
-    searchInput.addEventListener("input", () => searchData(searchInput.value));
+    /** Search products */
+    searchInput.addEventListener("input", () => {
+        const query = searchInput.value.toLowerCase();
+        const filteredData = dataProduct.filter((product) =>
+            product[searchMode].toLowerCase().includes(query)
+        );
+        renderTable(filteredData);
+    });
 
+    // Attach search mode buttons
     document.getElementById("searchTitle").addEventListener("click", () => setSearchMode("title"));
     document.getElementById("searchCategory").addEventListener("click", () => setSearchMode("category"));
 
+    // Attach form submission
+    submit.addEventListener("click", handleSubmit);
+
+    // Attach input event listeners for total calculation
     [price, taxes, ads, discount].forEach((input) =>
         input.addEventListener("input", calculateTotal)
     );
 
-    // تحديث الجدول عند تحميل الصفحة
+    // Initial render
     renderTable();
+});
+
+
+
+// تحديد العناصر
+const themeToggle = document.getElementById('theme-toggle');
+const body = document.body;
+
+// التحقق من تفضيلات المستخدم المحفوظة
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+    body.setAttribute('data-theme', savedTheme);
+} else {
+    body.setAttribute('data-theme', 'light'); // الوضع الافتراضي
+}
+
+// تحديث نص الزر والأيقونة بناءً على الوضع الحالي
+const updateButtonText = () => {
+    const currentTheme = body.getAttribute('data-theme');
+    if (currentTheme === 'light') {
+        themeToggle.innerHTML = '🌙 Dark Mode'; // أيقونة القمر للوضع الداكن
+    } else {
+        themeToggle.innerHTML = '☀️ Light Mode'; // أيقونة الشمس للوضع الفاتح
+    }
+};
+
+// تحديث الزر عند التحميل الأولي
+updateButtonText();
+
+// تغيير الوضع عند النقر على الزر
+themeToggle.addEventListener('click', () => {
+    const currentTheme = body.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    body.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+
+    // تحديث نص الزر والأيقونة
+    updateButtonText();
+
+    // إعلام المستخدم بتغيير الوضع
+    alert(`تم التبديل إلى الوضع ${newTheme === 'light' ? 'الفاتح' : 'الداكن'}`);
 });
